@@ -1,0 +1,44 @@
+From: David Bauer <mail@david-bauer.net>
+Date: Wed, 18 Jan 2023 22:06:36 +0100
+Subject: mbedtls: move source modification to patch
+
+Patch the mbedtls source instead of modifying the compile-targets
+in the prepare buildstep within OpenWrt.
+
+Signed-off-by: David Bauer <mail@david-bauer.net>
+
+diff --git a/package/libs/mbedtls/Makefile b/package/libs/mbedtls/Makefile
+index ee1a58c7b2a66725c14dd2b03232b116126568aa..cfaa71c817dc361d5c2935a2ca2ae863075d90be 100644
+--- a/package/libs/mbedtls/Makefile
++++ b/package/libs/mbedtls/Makefile
+@@ -111,9 +111,6 @@ define Build/Configure
+ 	     END { exit(rc) }' $(PKG_BUILD_DIR)/include/mbedtls/config.h \
+ 	     >$(PKG_BUILD_DIR)/include/mbedtls/config.h.new && \
+ 	mv $(PKG_BUILD_DIR)/include/mbedtls/config.h.new $(PKG_BUILD_DIR)/include/mbedtls/config.h
+-
+-	sed -i '/fuzz/d' $(PKG_BUILD_DIR)/programs/CMakeLists.txt
+-	sed -i '/test/d' $(PKG_BUILD_DIR)/programs/CMakeLists.txt
+ endef
+ 
+ define Build/InstallDev
+diff --git a/package/libs/mbedtls/patches/101-remove-test.patch b/package/libs/mbedtls/patches/101-remove-test.patch
+new file mode 100644
+index 0000000000000000000000000000000000000000..e43f8757d71702aadba7474a7d788f26c951116e
+--- /dev/null
++++ b/package/libs/mbedtls/patches/101-remove-test.patch
+@@ -0,0 +1,15 @@
++--- a/programs/CMakeLists.txt
+++++ b/programs/CMakeLists.txt
++@@ -1,12 +1,8 @@
++ add_subdirectory(aes)
++-if (NOT WIN32)
++-    add_subdirectory(fuzz)
++-endif()
++ add_subdirectory(hash)
++ add_subdirectory(pkey)
++ add_subdirectory(psa)
++ add_subdirectory(random)
++ add_subdirectory(ssl)
++-add_subdirectory(test)
++ add_subdirectory(util)
++ add_subdirectory(x509)
